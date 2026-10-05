@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blade - Pet Virtual</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #2c3e50;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .game-container {
+      background-color: #fce4ec;
+      border: 8px solid #ad1457;
+      border-radius: 24px;
+      width: 100%;
+      max-width: 500px;
+      padding: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      text-align: center;
+    }
+
+    header h1 {
+      color: #880e4f;
+      font-size: 2.2rem;
+      margin-bottom: 4px;
+    }
+
+    header p {
+      color: #c2185b;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+
+    .room-display {
+      background-color: #e8eaf6;
+      border: 4px solid #3f51b5;
+      border-radius: 16px;
+      padding: 15px;
+      position: relative;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    .room-title {
+      font-size: 0.9rem;
+      color: #3f51b5;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    canvas {
+      background-color: #ffffff;
+      border-radius: 12px;
+      border: 2px dashed #9fa8da;
+      display: block;
+      margin: 0 auto 15px auto;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      text-align: left;
+      font-size: 0.85rem;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .stat-bar {
+      background-color: #e0e0e0;
+      border-radius: 10px;
+      height: 14px;
+      overflow: hidden;
+      margin-top: 2px;
+    }
+
+    .stat-fill {
+      height: 100%;
+      width: 100%;
+      transition: width 0.3s ease;
+    }
+
+    .fill-happy { background-color: #ff4081; }
+    .fill-hunger { background-color: #ff9800; }
+    .fill-thirst { background-color: #29b6f6; }
+    .fill-hygiene { background-color: #26a69a; }
+    .fill-energy { background-color: #ab47bc; }
+
+    .actions-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    button {
+      background-color: #880e4f;
+      color: white;
+      border: none;
+      padding: 12px 8px;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: transform 0.1s, background-color 0.2s;
+    }
+
+    button:hover {
+      background-color: #ad1457;
+    }
+
+    button:active {
+      transform: scale(0.96);
+    }
+
+    footer {
+      margin-top: 15px;
+      font-size: 0.8rem;
+      color: #880e4f;
+    }
+  </style>
+</head>
+<body>
+
+<div class="game-container">
+  <header>
+    <h1>BLADE</h1>
+    <p>Criado por: Agatha (3º ano)</p>
+  </header>
+
+  <div class="room-display" id="room">
+    <div class="room-title" id="room-name">Quarto do Blade 🛏️</div>
+    <canvas id="bladeCanvas" width="260" height="180"></canvas>
+
+    <div class="stats">
+      <div>
+        Felicidade
+        <div class="stat-bar"><div class="stat-fill fill-happy" id="bar-happy"></div></div>
+      </div>
+      <div>
+        Fome
+        <div class="stat-bar"><div class="stat-fill fill-hunger" id="bar-hunger"></div></div>
+      </div>
+      <div>
+        Sede
+        <div class="stat-bar"><div class="stat-fill fill-thirst" id="bar-thirst"></div></div>
+      </div>
+      <div>
+        Higiene
+        <div class="stat-bar"><div class="stat-fill fill-hygiene" id="bar-hygiene"></div></div>
+      </div>
+      <div style="grid-column: span 2;">
+        Energia
+        <div class="stat-bar"><div class="stat-fill fill-energy" id="bar-energy"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions-grid">
+    <button onclick="playYard()">🎾 Brincar no Quintal</button>
+    <button onclick="walk()">🐕 Passear</button>
+    <button onclick="feed()">🦴 Dar Ração</button>
+    <button onclick="water()">💧 Dar Água</button>
+    <button onclick="bath()">🛁 Dar Banho</button>
+    <button onclick="brush()">🪥 Escovar Dentes e Pelo</button>
+    <button onclick="sleep()" style="grid-column: span 2; background-color: #3f51b5;">🌙 Colocar para Dormir</button>
+  </div>
+
+  <footer>
+    Cuidado com carinho do Blade!
+  </footer>
+</div>
+
+<script>
+  const canvas = document.getElementById('bladeCanvas');
+  const ctx = canvas.getContext('2d');
+
+  let stats = {
+    happy: 80,
+    hunger: 80,
+    thirst: 80,
+    hygiene: 80,
+    energy: 80
+  };
+
+  let isSleeping = false;
+  let currentActionText = "";
+
+  function drawBlade()
