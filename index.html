@@ -3,200 +3,795 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Blade - Pet Virtual</title>
+  <title>BLADE - Pet Virtual (Por Agatha)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
   <style>
+    /* Custom Styling for Pet Game UI */
     * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      touch-action: manipulation;
     }
-
     body {
-      background-color: #2c3e50;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      padding: 20px;
+      font-family: 'Nunito', sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
     }
-
-    .game-container {
-      background-color: #fce4ec;
-      border: 8px solid #ad1457;
-      border-radius: 24px;
-      width: 100%;
-      max-width: 500px;
-      padding: 20px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-      text-align: center;
+    .font-title {
+      font-family: 'Fredoka One', cursive;
     }
-
-    header h1 {
-      color: #880e4f;
-      font-size: 2.2rem;
-      margin-bottom: 4px;
+    .game-card {
+      background: #ffffff;
+      border: 4px solid #f59e0b;
+      box-shadow: 0 12px 32px rgba(245, 158, 11, 0.25);
     }
-
-    header p {
-      color: #c2185b;
-      font-weight: bold;
-      margin-bottom: 15px;
+    .btn-action {
+      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 0 rgba(0, 0, 0, 0.18);
     }
-
-    .room-display {
-      background-color: #e8eaf6;
-      border: 4px solid #3f51b5;
-      border-radius: 16px;
-      padding: 15px;
-      position: relative;
-      margin-bottom: 20px;
-      overflow: hidden;
+    .btn-action:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 0 rgba(0, 0, 0, 0.18);
     }
-
-    .room-title {
-      font-size: 0.9rem;
-      color: #3f51b5;
-      font-weight: bold;
-      text-transform: uppercase;
-      margin-bottom: 10px;
+    .btn-action:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 rgba(0, 0, 0, 0.18);
     }
-
-    canvas {
-      background-color: #ffffff;
-      border-radius: 12px;
-      border: 2px dashed #9fa8da;
-      display: block;
-      margin: 0 auto 15px auto;
+    .room-btn {
+      transition: all 0.2s ease;
     }
-
-    .stats {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      text-align: left;
-      font-size: 0.85rem;
-      font-weight: bold;
-      color: #333;
+    .room-btn.active {
+      transform: scale(1.05);
+      border-color: #f59e0b;
+      background-color: #fef3c7;
+      color: #92400e;
     }
-
-    .stat-bar {
-      background-color: #e0e0e0;
-      border-radius: 10px;
-      height: 14px;
-      overflow: hidden;
-      margin-top: 2px;
+    /* Pulse heart animation */
+    @keyframes heartBeat {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
     }
-
-    .stat-fill {
-      height: 100%;
-      width: 100%;
-      transition: width 0.3s ease;
-    }
-
-    .fill-happy { background-color: #ff4081; }
-    .fill-hunger { background-color: #ff9800; }
-    .fill-thirst { background-color: #29b6f6; }
-    .fill-hygiene { background-color: #26a69a; }
-    .fill-energy { background-color: #ab47bc; }
-
-    .actions-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-    }
-
-    button {
-      background-color: #880e4f;
-      color: white;
-      border: none;
-      padding: 12px 8px;
-      border-radius: 12px;
-      font-weight: bold;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: transform 0.1s, background-color 0.2s;
-    }
-
-    button:hover {
-      background-color: #ad1457;
-    }
-
-    button:active {
-      transform: scale(0.96);
-    }
-
-    footer {
-      margin-top: 15px;
-      font-size: 0.8rem;
-      color: #880e4f;
+    .animate-heart {
+      animation: heartBeat 1.2s infinite ease-in-out;
     }
   </style>
 </head>
-<body>
+<body class="bg-amber-100 min-h-screen flex items-center justify-center p-2 sm:p-4 text-slate-800">
 
-<div class="game-container">
-  <header>
-    <h1>BLADE</h1>
-    <p>Criado por: Agatha (3º ano)</p>
-  </header>
+  <!-- Main Game Panel Container -->
+  <div id="game-container" class="w-full max-w-md game-card rounded-3xl p-4 sm:p-5 relative flex flex-col gap-3 overflow-hidden">
+    
+    <!-- Header with Agatha Title & Controls -->
+    <div class="flex justify-between items-center bg-amber-50 p-2.5 rounded-2xl border-2 border-amber-200">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-title text-amber-600 tracking-wide leading-none flex items-center gap-1.5">
+          <span>🐶</span> BLADE
+        </h1>
+        <p class="text-xs font-extrabold text-amber-800/70 mt-0.5">Criado por: Agatha (3º ano)</p>
+      </div>
 
-  <div class="room-display" id="room">
-    <div class="room-title" id="room-name">Quarto do Blade 🛏️</div>
-    <canvas id="bladeCanvas" width="260" height="180"></canvas>
+      <div class="flex items-center gap-2">
+        <!-- Mute Sound Toggle -->
+        <button id="btn-sound" onclick="toggleAudio()" class="w-10 h-10 rounded-xl bg-amber-200 hover:bg-amber-300 text-amber-900 font-bold flex items-center justify-center text-lg transition border border-amber-300" title="Ativar/Desativar Som">
+          🔊
+        </button>
 
-    <div class="stats">
-      <div>
-        Felicidade
-        <div class="stat-bar"><div class="stat-fill fill-happy" id="bar-happy"></div></div>
-      </div>
-      <div>
-        Fome
-        <div class="stat-bar"><div class="stat-fill fill-hunger" id="bar-hunger"></div></div>
-      </div>
-      <div>
-        Sede
-        <div class="stat-bar"><div class="stat-fill fill-thirst" id="bar-thirst"></div></div>
-      </div>
-      <div>
-        Higiene
-        <div class="stat-bar"><div class="stat-fill fill-hygiene" id="bar-hygiene"></div></div>
-      </div>
-      <div style="grid-column: span 2;">
-        Energia
-        <div class="stat-bar"><div class="stat-fill fill-energy" id="bar-energy"></div></div>
+        <!-- Fullscreen Button -->
+        <button onclick="toggleFullscreen()" class="px-3 h-10 rounded-xl bg-amber-500 hover:bg-amber-600 active:scale-95 text-white font-title text-sm flex items-center gap-1 transition shadow-md" title="Tela Cheia">
+          <span>⛶</span> <span class="hidden sm:inline">Tela Cheia</span>
+        </button>
       </div>
     </div>
+
+    <!-- Room Selector Tabs -->
+    <div class="grid grid-cols-4 gap-1.5 text-xs font-black">
+      <button onclick="switchRoom('bedroom')" id="tab-bedroom" class="room-btn active p-2 rounded-xl bg-slate-100 border-2 border-slate-200 flex flex-col items-center gap-0.5">
+        <span class="text-base">🛏️</span> Quarto
+      </button>
+      <button onclick="switchRoom('kitchen')" id="tab-kitchen" class="room-btn p-2 rounded-xl bg-slate-100 border-2 border-slate-200 flex flex-col items-center gap-0.5">
+        <span class="text-base">🍖</span> Cozinha
+      </button>
+      <button onclick="switchRoom('bathroom')" id="tab-bathroom" class="room-btn p-2 rounded-xl bg-slate-100 border-2 border-slate-200 flex flex-col items-center gap-0.5">
+        <span class="text-base">🧼</span> Banheiro
+      </button>
+      <button onclick="switchRoom('yard')" id="tab-yard" class="room-btn p-2 rounded-xl bg-slate-100 border-2 border-slate-200 flex flex-col items-center gap-0.5">
+        <span class="text-base">⚽</span> Quintal
+      </button>
+    </div>
+
+    <!-- HTML5 Interactive Canvas Viewport -->
+    <div class="relative w-full aspect-[4/3] rounded-2xl overflow-hidden border-4 border-amber-400 bg-amber-50 shadow-inner">
+      <canvas id="bladeCanvas" class="w-full h-full block cursor-pointer"></canvas>
+      
+      <!-- Speech/Action Toast Notification -->
+      <div id="toast" class="absolute top-3 left-1/2 -translate-x-1/2 bg-amber-900/90 text-amber-100 px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-300 opacity-0 pointer-events-none shadow-lg whitespace-nowrap z-10 border border-amber-600">
+        Blade diz: Au au!
+      </div>
+
+      <!-- Minigame Overlay HUD (Quintal) -->
+      <div id="minigame-hud" class="absolute inset-x-3 top-3 flex justify-between items-center hidden z-10">
+        <div class="bg-amber-500 border-2 border-white text-white font-title px-3 py-1 rounded-full text-xs shadow-md">
+          Placar: <span id="score-val">0</span>
+        </div>
+        <div class="bg-slate-900/70 text-white font-bold px-3 py-1 rounded-full text-[10px]">
+          Clique na bola para arremessar! ⚽
+        </div>
+      </div>
+    </div>
+
+    <!-- Pet Status & Need Bars -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs font-extrabold">
+      <!-- Felicidade -->
+      <div class="bg-pink-50 p-1.5 rounded-xl border border-pink-200">
+        <div class="flex justify-between mb-0.5 text-pink-700">
+          <span>😀 Felicidade</span>
+          <span id="val-happy">100%</span>
+        </div>
+        <div class="w-full bg-pink-200 h-2.5 rounded-full overflow-hidden">
+          <div id="bar-happy" class="bg-pink-500 h-full transition-all duration-300 w-full"></div>
+        </div>
+      </div>
+
+      <!-- Fome -->
+      <div class="bg-amber-50 p-1.5 rounded-xl border border-amber-200">
+        <div class="flex justify-between mb-0.5 text-amber-800">
+          <span>🍖 Fome</span>
+          <span id="val-hunger">100%</span>
+        </div>
+        <div class="w-full bg-amber-200 h-2.5 rounded-full overflow-hidden">
+          <div id="bar-hunger" class="bg-amber-500 h-full transition-all duration-300 w-full"></div>
+        </div>
+      </div>
+
+      <!-- Sede -->
+      <div class="bg-sky-50 p-1.5 rounded-xl border border-sky-200">
+        <div class="flex justify-between mb-0.5 text-sky-800">
+          <span>🥤 Sede</span>
+          <span id="val-thirst">100%</span>
+        </div>
+        <div class="w-full bg-sky-200 h-2.5 rounded-full overflow-hidden">
+          <div id="bar-thirst" class="bg-sky-500 h-full transition-all duration-300 w-full"></div>
+        </div>
+      </div>
+
+      <!-- Higiene -->
+      <div class="bg-emerald-50 p-1.5 rounded-xl border border-emerald-200">
+        <div class="flex justify-between mb-0.5 text-emerald-800">
+          <span>🧼 Higiene</span>
+          <span id="val-clean">100%</span>
+        </div>
+        <div class="w-full bg-emerald-200 h-2.5 rounded-full overflow-hidden">
+          <div id="bar-clean" class="bg-emerald-500 h-full transition-all duration-300 w-full"></div>
+        </div>
+      </div>
+
+      <!-- Energia -->
+      <div class="bg-indigo-50 p-1.5 rounded-xl border border-indigo-200">
+        <div class="flex justify-between mb-0.5 text-indigo-800">
+          <span>⚡ Energia</span>
+          <span id="val-energy">100%</span>
+        </div>
+        <div class="w-full bg-indigo-200 h-2.5 rounded-full overflow-hidden">
+          <div id="bar-energy" class="bg-indigo-500 h-full transition-all duration-300 w-full"></div>
+        </div>
+      </div>
+
+      <!-- Quick Action / Status Note -->
+      <div class="bg-amber-100 p-1.5 rounded-xl border border-amber-300 flex items-center justify-center text-amber-900 text-[11px] font-bold text-center">
+        <span id="status-desc">O Blade está super feliz!</span>
+      </div>
+    </div>
+
+    <!-- Action Controls per Room Context -->
+    <div class="grid grid-cols-3 gap-2">
+      <button onclick="doAction('feed')" class="btn-action bg-amber-500 hover:bg-amber-600 text-white p-2.5 rounded-xl font-bold flex flex-col items-center justify-center gap-0.5">
+        <span class="text-xl">🍖</span>
+        <span class="text-xs">Dar Comida</span>
+      </button>
+
+      <button onclick="doAction('drink')" class="btn-action bg-sky-500 hover:bg-sky-600 text-white p-2.5 rounded-xl font-bold flex flex-col items-center justify-center gap-0.5">
+        <span class="text-xl">🥤</span>
+        <span class="text-xs">Dar Água</span>
+      </button>
+
+      <button onclick="doAction('bath')" class="btn-action bg-emerald-500 hover:bg-emerald-600 text-white p-2.5 rounded-xl font-bold flex flex-col items-center justify-center gap-0.5">
+        <span class="text-xl">🧼</span>
+        <span class="text-xs">Dar Banho</span>
+      </button>
+
+      <button onclick="doAction('sleep')" class="btn-action bg-indigo-600 hover:bg-indigo-700 text-white p-2.5 rounded-xl font-bold flex flex-col items-center justify-center gap-0.5">
+        <span class="text-xl" id="sleep-btn-icon">🌙</span>
+        <span class="text-xs" id="sleep-btn-label">Dormir</span>
+      </button>
+
+      <button onclick="doAction('play')" class="btn-action bg-pink-500 hover:bg-pink-600 text-white p-2.5 rounded-xl font-bold flex flex-col items-center justify-center gap-0.5">
+        <span class="text-xl">⚽</span>
+        <span class="text-xs">Brincar</span>
+      </button>
+
+      <button onclick="doAction('pet')" class="btn-action bg-rose-500 hover:bg-rose-600 text-white p-2.5 rounded-xl font-bold flex flex-col items-center justify-center gap-0.5">
+        <span class="text-xl">✋</span>
+        <span class="text-xs">Fazer Carinho</span>
+      </button>
+    </div>
+
+    <!-- Footer Credit & Information -->
+    <div class="flex justify-between items-center text-[11px] text-amber-800/80 font-bold pt-1 border-t border-amber-200">
+      <span>💡 Clique no Blade para carinho!</span>
+      <button onclick="resetStats()" class="underline hover:text-red-600">Reiniciar Jogo</button>
+    </div>
+
   </div>
 
-  <div class="actions-grid">
-    <button onclick="playYard()">🎾 Brincar no Quintal</button>
-    <button onclick="walk()">🐕 Passear</button>
-    <button onclick="feed()">🦴 Dar Ração</button>
-    <button onclick="water()">💧 Dar Água</button>
-    <button onclick="bath()">🛁 Dar Banho</button>
-    <button onclick="brush()">🪥 Escovar Dentes e Pelo</button>
-    <button onclick="sleep()" style="grid-column: span 2; background-color: #3f51b5;">🌙 Colocar para Dormir</button>
-  </div>
+  <script>
+    /* --- Web Audio Synthesizer --- */
+    class AudioSystem {
+      constructor() {
+        this.ctx = null;
+        this.muted = false;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) this.ctx = new AudioContext();
+        }
+      }
+      playNote(freq, type = 'sine', duration = 0.1, vol = 0.1) {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
 
-  <footer>
-    Cuidado com carinho do Blade!
-  </footer>
-</div>
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = type;
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + duration);
+        } catch (e) {}
+      }
+      bark() {
+        this.playNote(350, 'sawtooth', 0.08, 0.2);
+        setTimeout(() => this.playNote(420, 'sawtooth', 0.1, 0.2), 90);
+      }
+      happy() {
+        this.playNote(523.25, 'sine', 0.1, 0.15); // C5
+        setTimeout(() => this.playNote(659.25, 'sine', 0.1, 0.15), 100); // E5
+        setTimeout(() => this.playNote(783.99, 'sine', 0.15, 0.15), 200); // G5
+      }
+      eat() {
+        this.playNote(220, 'triangle', 0.06, 0.2);
+        setTimeout(() => this.playNote(260, 'triangle', 0.06, 0.2), 80);
+        setTimeout(() => this.playNote(300, 'triangle', 0.06, 0.2), 160);
+      }
+      pop() {
+        this.playNote(600, 'sine', 0.05, 0.2);
+      }
+    }
 
-<script>
-  const canvas = document.getElementById('bladeCanvas');
-  const ctx = canvas.getContext('2d');
+    const audio = new AudioSystem();
 
-  let stats = {
-    happy: 80,
-    hunger: 80,
-    thirst: 80,
-    hygiene: 80,
-    energy: 80
-  };
+    function toggleAudio() {
+      audio.muted = !audio.muted;
+      document.getElementById('btn-sound').textContent = audio.muted ? '🔇' : '🔊';
+      showToast(audio.muted ? "Sons desligados" : "Sons ligados");
+    }
 
-  let isSleeping = false;
-  let currentActionText = "";
+    /* --- Game State Management --- */
+    const INITIAL_STATE = {
+      happy: 90,
+      hunger: 80,
+      thirst: 85,
+      clean: 90,
+      energy: 85,
+      isSleeping: false,
+      room: 'bedroom', // 'bedroom', 'kitchen', 'bathroom', 'yard'
+      score: 0
+    };
 
-  function drawBlade()
+    let pet = { ...INITIAL_STATE };
+
+    function loadSavedState() {
+      const saved = localStorage.getItem('blade_agatha_pet');
+      if (saved) {
+        try { pet = { ...INITIAL_STATE, ...JSON.parse(saved) }; } catch(e){}
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem('blade_agatha_pet', JSON.stringify(pet));
+    }
+
+    function resetStats() {
+      if (confirm("Quer reiniciar as barras do Blade?")) {
+        pet = { ...INITIAL_STATE };
+        saveState();
+        updateUI();
+        audio.bark();
+        showToast("O Blade foi reiniciado!");
+      }
+    }
+
+    /* --- STREAMING_CHUNK:Setting up Canvas rendering and animations... --- */
+    const canvas = document.getElementById('bladeCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      canvas.width = canvas.clientWidth;
+      canvas.height = canvas.clientHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // Floating Particles System
+    let particles = [];
+    function createParticle(x, y, symbol) {
+      for (let i = 0; i < 4; i++) {
+        particles.push({
+          x: x + (Math.random() - 0.5) * 30,
+          y: y + (Math.random() - 0.5) * 20,
+          vx: (Math.random() - 0.5) * 2,
+          vy: -Math.random() * 2 - 1,
+          symbol: symbol,
+          alpha: 1,
+          size: 18 + Math.random() * 8
+        });
+      }
+    }
+
+    // Interactive Ball for Quintal
+    let ball = {
+      x: 200,
+      y: 150,
+      vx: 0,
+      vy: 0,
+      radius: 12,
+      active: false
+    };
+
+    let animFrame = 0;
+
+    // Draw Background Room Environments
+    function drawRoom() {
+      const w = canvas.width;
+      const h = canvas.height;
+
+      if (pet.room === 'bedroom') {
+        // Quarto
+        ctx.fillStyle = pet.isSleeping ? '#1e1b4b' : '#fef3c7';
+        ctx.fillRect(0, 0, w, h * 0.7);
+        ctx.fillStyle = pet.isSleeping ? '#312e81' : '#f59e0b';
+        ctx.fillRect(0, h * 0.7, w, h * 0.3);
+
+        // Bed Cushion
+        ctx.fillStyle = '#e11d48';
+        ctx.beginPath();
+        ctx.ellipse(w * 0.5, h * 0.78, w * 0.35, h * 0.12, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Nightlamp/Window
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(w * 0.75, h * 0.15, w * 0.18, h * 0.3);
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(w * 0.75, h * 0.15, w * 0.18, h * 0.3);
+
+      } else if (pet.room === 'kitchen') {
+        // Cozinha
+        ctx.fillStyle = '#ffedd5';
+        ctx.fillRect(0, 0, w, h * 0.65);
+        ctx.fillStyle = '#e2e8f0'; // Tiles
+        ctx.fillRect(0, h * 0.65, w, h * 0.35);
+
+        // Food Bowls
+        ctx.fillStyle = '#ef4444'; // Food Bowl
+        ctx.beginPath();
+        ctx.ellipse(w * 0.3, h * 0.8, 22, 10, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#0ea5e9'; // Water Bowl
+        ctx.beginPath();
+        ctx.ellipse(w * 0.7, h * 0.8, 22, 10, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+      } else if (pet.room === 'bathroom') {
+        // Banheiro
+        ctx.fillStyle = '#ccfbf1';
+        ctx.fillRect(0, 0, w, h * 0.65);
+        ctx.fillStyle = '#0d9488';
+        ctx.fillRect(0, h * 0.65, w, h * 0.35);
+
+        // Tub
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.roundRect(w * 0.2, h * 0.55, w * 0.6, h * 0.28, 20);
+        ctx.fill();
+        ctx.strokeStyle = '#cbd5e1';
+        ctx.lineWidth = 4;
+        ctx.stroke();
+
+      } else if (pet.room === 'yard') {
+        // Quintal
+        ctx.fillStyle = '#38bdf8'; // Sky
+        ctx.fillRect(0, 0, w, h * 0.55);
+        ctx.fillStyle = '#4ade80'; // Grass
+        ctx.fillRect(0, h * 0.55, w, h * 0.45);
+
+        // Sun
+        ctx.fillStyle = '#facc15';
+        ctx.beginPath();
+        ctx.arc(w * 0.85, h * 0.2, 24, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function drawBlade(x, y) {
+      ctx.save();
+      ctx.translate(x, y);
+
+      // Tailwag animation
+      const tailAngle = Math.sin(animFrame * 0.15) * (pet.happy > 50 ? 0.35 : 0.1);
+      ctx.save();
+      ctx.translate(32, 5);
+      ctx.rotate(tailAngle);
+      ctx.fillStyle = '#78350f'; // Dark Brown Tail
+      ctx.beginPath();
+      ctx.ellipse(14, -4, 16, 7, Math.PI / 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      // Dog Body
+      ctx.fillStyle = '#d97706'; // Golden Brown
+      ctx.beginPath();
+      ctx.ellipse(0, 15, 38, 28, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // White Chest
+      ctx.fillStyle = '#fef3c7';
+      ctx.beginPath();
+      ctx.ellipse(-10, 18, 18, 16, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Dog Head
+      ctx.fillStyle = '#d97706';
+      ctx.beginPath();
+      ctx.arc(-10, -22, 28, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Cute Floppy Ears
+      ctx.fillStyle = '#78350f';
+      ctx.beginPath();
+      ctx.ellipse(-28, -38, 9, 20, -Math.PI / 6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(8, -38, 9, 20, Math.PI / 6, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Muzzle / Snout
+      ctx.fillStyle = '#fef3c7';
+      ctx.beginPath();
+      ctx.ellipse(-20, -18, 15, 11, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Black Nose
+      ctx.fillStyle = '#1c1917';
+      ctx.beginPath();
+      ctx.arc(-27, -21, 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Red Collar
+      ctx.fillStyle = '#dc2626';
+      ctx.fillRect(-26, -4, 32, 6);
+      ctx.fillStyle = '#facc15';
+      ctx.beginPath();
+      ctx.arc(-10, 4, 4, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Eye Animation (Blinking / Sleeping)
+      const isBlinking = (animFrame % 120 > 112);
+      if (pet.isSleeping || isBlinking) {
+        // Closed Eyes
+        ctx.strokeStyle = '#1c1917';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(-20, -27, 4, 0, Math.PI);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(-3, -27, 4, 0, Math.PI);
+        ctx.stroke();
+
+        if (pet.isSleeping) {
+          ctx.fillStyle = '#a5f3fc';
+          ctx.font = 'bold 15px sans-serif';
+          ctx.fillText('Zzz...', -10, -50 - (animFrame % 40) / 2);
+        }
+      } else {
+        // Open Eyes
+        ctx.fillStyle = '#1c1917';
+        ctx.beginPath();
+        ctx.arc(-20, -27, 4.5, 0, Math.PI * 2);
+        ctx.arc(-3, -27, 4.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Eye Highlights
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(-22, -29, 1.8, 0, Math.PI * 2);
+        ctx.arc(-5, -29, 1.8, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Happy Tongue
+        if (pet.happy > 50) {
+          ctx.fillStyle = '#f43f5e';
+          ctx.beginPath();
+          ctx.ellipse(-16, -11, 4, 7, 0, 0, Math.PI);
+          ctx.fill();
+        }
+      }
+
+      // Dirt spots if low hygiene
+      if (pet.clean < 40) {
+        ctx.fillStyle = '#78350f';
+        ctx.beginPath();
+        ctx.arc(12, 12, 5, 0, Math.PI * 2);
+        ctx.arc(-18, 12, 6, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.restore();
+    }
+
+    function gameLoop() {
+      animFrame++;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      drawRoom();
+
+      const petX = canvas.width * 0.5;
+      const petY = canvas.height * (pet.room === 'bathroom' ? 0.6 : 0.68) + Math.sin(animFrame * 0.06) * 2;
+
+      drawBlade(petX, petY);
+
+      // Minigame Ball Physics (Quintal)
+      if (pet.room === 'yard' && ball.active) {
+        ball.x += ball.vx;
+        ball.y += ball.vy;
+
+        // Bounce inside canvas
+        if (ball.x < ball.radius || ball.x > canvas.width - ball.radius) ball.vx *= -1;
+        if (ball.y < ball.radius || ball.y > canvas.height - ball.radius) ball.vy *= -1;
+
+        // Draw Ball
+        ctx.fillStyle = '#ea580c';
+        ctx.beginPath();
+        ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+
+      // Particles render & update
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.alpha -= 0.025;
+
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, p.alpha);
+        ctx.font = `${p.size}px sans-serif`;
+        ctx.fillText(p.symbol, p.x, p.y);
+        ctx.restore();
+
+        if (p.alpha <= 0) particles.splice(i, 1);
+      }
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    /* --- STREAMING_CHUNK:Pet Needs & Decrease Timers... --- */
+    setInterval(() => {
+      if (pet.isSleeping) {
+        pet.energy = Math.min(100, pet.energy + 5);
+        pet.hunger = Math.max(0, pet.hunger - 0.4);
+        pet.thirst = Math.max(0, pet.thirst - 0.4);
+        if (pet.energy >= 100) {
+          pet.isSleeping = false;
+          showToast("Blade acordou cheinho de energia!");
+          audio.bark();
+        }
+      } else {
+        pet.hunger = Math.max(0, pet.hunger - 1.2);
+        pet.thirst = Math.max(0, pet.thirst - 1.5);
+        pet.clean = Math.max(0, pet.clean - 0.8);
+        pet.energy = Math.max(0, pet.energy - 0.9);
+
+        if (pet.hunger < 30 || pet.thirst < 30 || pet.clean < 30 || pet.energy < 30) {
+          pet.happy = Math.max(0, pet.happy - 1.5);
+        }
+      }
+
+      saveState();
+      updateUI();
+    }, 3000);
+
+    /* --- STREAMING_CHUNK:UI Updates & Actions logic... --- */
+    function updateUI() {
+      document.getElementById('bar-happy').style.width = pet.happy + '%';
+      document.getElementById('val-happy').textContent = Math.round(pet.happy) + '%';
+
+      document.getElementById('bar-hunger').style.width = pet.hunger + '%';
+      document.getElementById('val-hunger').textContent = Math.round(pet.hunger) + '%';
+
+      document.getElementById('bar-thirst').style.width = pet.thirst + '%';
+      document.getElementById('val-thirst').textContent = Math.round(pet.thirst) + '%';
+
+      document.getElementById('bar-clean').style.width = pet.clean + '%';
+      document.getElementById('val-clean').textContent = Math.round(pet.clean) + '%';
+
+      document.getElementById('bar-energy').style.width = pet.energy + '%';
+      document.getElementById('val-energy').textContent = Math.round(pet.energy) + '%';
+
+      // Update sleep button state
+      document.getElementById('sleep-btn-label').textContent = pet.isSleeping ? 'Acordar' : 'Dormir';
+      document.getElementById('sleep-btn-icon').textContent = pet.isSleeping ? '☀️' : '🌙';
+
+      // Status Note
+      const desc = document.getElementById('status-desc');
+      if (pet.isSleeping) desc.textContent = 'Dormindo suavemente... 💤';
+      else if (pet.hunger < 30) desc.textContent = 'Blade está com fome! 🍖';
+      else if (pet.thirst < 30) desc.textContent = 'Blade está com sede! 🥤';
+      else if (pet.clean < 30) desc.textContent = 'Precisa de um banho! 🧼';
+      else if (pet.energy < 25) desc.textContent = 'Blade está cansado... 🥱';
+      else desc.textContent = 'Blade está feliz e pronto pra brincar!';
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.remove('opacity-0');
+      t.classList.add('opacity-100');
+      setTimeout(() => {
+        t.classList.remove('opacity-100');
+        t.classList.add('opacity-0');
+      }, 2200);
+    }
+
+    function switchRoom(targetRoom) {
+      pet.room = targetRoom;
+      document.querySelectorAll('.room-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(`tab-${targetRoom}`).classList.add('active');
+
+      const mgHud = document.getElementById('minigame-hud');
+      if (targetRoom === 'yard') {
+        mgHud.classList.remove('hidden');
+        ball.active = true;
+        ball.x = canvas.width / 2;
+        ball.y = canvas.height / 3;
+      } else {
+        mgHud.classList.add('hidden');
+        ball.active = false;
+      }
+
+      audio.pop();
+      saveState();
+      updateUI();
+    }
+
+    function doAction(action) {
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2;
+
+      if (pet.isSleeping && action !== 'sleep') {
+        showToast("Shh! O Blade está dormindo!");
+        return;
+      }
+
+      switch (action) {
+        case 'feed':
+          switchRoom('kitchen');
+          pet.hunger = Math.min(100, pet.hunger + 30);
+          pet.happy = Math.min(100, pet.happy + 10);
+          createParticle(cx, cy, '🍖');
+          audio.eat();
+          showToast("Blade comeu toda a ração!");
+          break;
+
+        case 'drink':
+          switchRoom('kitchen');
+          pet.thirst = Math.min(100, pet.thirst + 35);
+          pet.happy = Math.min(100, pet.happy + 5);
+          createParticle(cx, cy, '🥤');
+          audio.pop();
+          showToast("Blade bebeu água fresquinha!");
+          break;
+
+        case 'bath':
+          switchRoom('bathroom');
+          pet.clean = 100;
+          pet.happy = Math.min(100, pet.happy + 15);
+          createParticle(cx, cy, '🫧');
+          audio.pop();
+          showToast("Blade tomou um banho gostoso!");
+          break;
+
+        case 'sleep':
+          switchRoom('bedroom');
+          pet.isSleeping = !pet.isSleeping;
+          showToast(pet.isSleeping ? "Boa noite, Blade! 🌙" : "Bom dia, Blade! ☀️");
+          if (!pet.isSleeping) audio.bark();
+          break;
+
+        case 'play':
+          switchRoom('yard');
+          pet.happy = Math.min(100, pet.happy + 25);
+          pet.energy = Math.max(0, pet.energy - 10);
+          createParticle(cx, cy, '⚽');
+          audio.happy();
+          showToast("Que divertido brincar no quintal!");
+          break;
+
+        case 'pet':
+          pet.happy = Math.min(100, pet.happy + 15);
+          createParticle(cx, cy, '❤️');
+          audio.happy();
+          showToast("Blade amou o carinho!");
+          break;
+      }
+
+      saveState();
+      updateUI();
+    }
+
+    // Canvas Tap/Click Handler
+    canvas.addEventListener('click', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      if (pet.room === 'yard' && ball.active) {
+        // Throw or kick ball
+        ball.vx = (Math.random() - 0.5) * 8;
+        ball.vy = -4 - Math.random() * 4;
+        pet.score += 1;
+        document.getElementById('score-val').textContent = pet.score;
+        pet.happy = Math.min(100, pet.happy + 5);
+        createParticle(ball.x, ball.y, '✨');
+        audio.happy();
+        saveState();
+        updateUI();
+      } else {
+        doAction('pet');
+      }
+    });
+
+    function toggleFullscreen() {
+      const gameBox = document.getElementById('game-container');
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        if (gameBox.requestFullscreen) {
+          gameBox.requestFullscreen();
+        } else if (gameBox.webkitRequestFullscreen) {
+          gameBox.webkitRequestFullscreen();
+        }
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        }
+      }
+    }
+
+    // Start Game
+    window.onload = () => {
+      loadSavedState();
+      updateUI();
+      gameLoop();
+    };
+  </script>
+</body>
+</html>
